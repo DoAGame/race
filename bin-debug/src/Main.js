@@ -35,6 +35,7 @@ var Main = (function (_super) {
     function Main() {
         _super.call(this);
         this.mRoadBound = 0.0934;
+        this.touchStart = 0;
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
     Main.prototype.onAddToStage = function (event) {
@@ -99,6 +100,40 @@ var Main = (function (_super) {
         if (this.mReadyUI && this.mReadyUI.parent) {
             this.mReadyUI.clear();
             this.removeChild(this.mReadyUI);
+        }
+        this.mGameScene = new GameScene(this);
+        this.addChild(this.mGameScene);
+        this.mGameScene.startGame();
+
+        this.touchEnabled = true;
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+    };
+
+    Main.prototype.touchBegin = function (e) {
+        this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.touchEnd, this);
+        this.touchStart = egret.getTimer();
+        this.touchStartPoint = new egret.Point(e.stageX, e.stageY);
+        //        if(this.touchTimer == null)
+        //        {
+        //            this.touchTimer = new egret.Timer(100, 1);
+        //            this.touchTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.timerComplete, this);
+        //        }
+    };
+
+    Main.prototype.touchEnd = function (e) {
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+        this.removeEventListener(egret.TouchEvent.TOUCH_END, this.touchEnd, this);
+        if (e.stageX == this.touchStartPoint.x) {
+            if (e.stageX > Util.stage_width / 2) {
+                this.mGameScene.move(1);
+            } else {
+                this.mGameScene.move(-1);
+            }
+        } else if (e.stageX > this.touchStartPoint.x) {
+            this.mGameScene.move(1);
+        } else {
+            this.mGameScene.move(-1);
         }
     };
     return Main;

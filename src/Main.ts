@@ -34,6 +34,7 @@ class Main extends egret.DisplayObjectContainer{
     private mRoadBound:number = 0.0934;
     private mMainUI:MainUI;
     private mReadyUI:ReadyUI;
+    private mGameScene:GameScene;
 
     public constructor() {
         super();
@@ -104,5 +105,54 @@ class Main extends egret.DisplayObjectContainer{
             this.mReadyUI.clear();
             this.removeChild(this.mReadyUI);
         }
+        this.mGameScene = new GameScene(this);
+        this.addChild(this.mGameScene);
+        this.mGameScene.startGame();
+
+        this.touchEnabled = true;
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+
     }
+
+    private touchStart:number=0;
+    private touchTimer:egret.Timer;
+    private touchStartPoint:egret.Point;
+    private touchBegin(e:egret.TouchEvent):void
+    {
+        this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.touchEnd, this);
+        this.touchStart = egret.getTimer();
+        this.touchStartPoint = new egret.Point(e.stageX, e.stageY);
+//        if(this.touchTimer == null)
+//        {
+//            this.touchTimer = new egret.Timer(100, 1);
+//            this.touchTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.timerComplete, this);
+//        }
+    }
+
+    private touchEnd(e:egret.TouchEvent):void
+    {
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+        this.removeEventListener(egret.TouchEvent.TOUCH_END, this.touchEnd, this);
+        if(e.stageX == this.touchStartPoint.x)
+        {
+            if(e.stageX > Util.stage_width/2)
+            {
+                this.mGameScene.move(1);
+            }else{
+                this.mGameScene.move(-1);
+            }
+        }else if(e.stageX > this.touchStartPoint.x){
+            this.mGameScene.move(1);
+        }else{
+            this.mGameScene.move(-1);
+        }
+    }
+
+//    private timerComplete(e:egret.TimerEvent):void
+//    {
+//        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.touchBegin, this);
+//        this.removeEventListener(egret.TouchEvent.TOUCH_OVER, this.touchOver, this);
+//
+//    }
 }
